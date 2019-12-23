@@ -1,0 +1,10 @@
+Plan
+
+- Basically implement a sort via 2-card comparisons of power level in a vaccuum.
+- Also maybe do some slicing and dicing queries to see hit rate of removal spells and standard cube analysis
+
+Components
+- Card list ingester
+- Card image downloader (cache to disk)
+- GUI (Display card images + select card)
+- Sorting Engine (select matchups, record state to disk and perform ordering)
