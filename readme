@@ -1,6 +1,6 @@
 Plan
 
-- Basically implement a sort via 2-card comparisons of power level in a vaccuum.
+- Basically implement a sort via pick one from many, comparison of power level in a vaccuum.
 - Also maybe do some slicing and dicing queries to see hit rate of removal spells and standard cube analysis
 
 Components
