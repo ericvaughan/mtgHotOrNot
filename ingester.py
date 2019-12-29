@@ -17,10 +17,10 @@ def create_conn(db_file):
     return conn
 
 
-def create_table(conn, create_table_sql: str):
+def execute_query(conn, sql_cmd: str):
     try:
         c = conn.cursor()
-        c.execute(create_table_sql)
+        c.execute(sql_cmd)
     except Error as e:
         print(e)
 
@@ -30,36 +30,42 @@ def download_card_image(card_name: str):
 
 
 def init_table(conn):
+    import pdb;pdb.set_trace()
     cmd_str = """CREATE TABLE IF NOT EXISTS cards (
                     id integer PRIMARY KEY,
                     card_name text NOT NULL,
                     card_text text NOT NULL,
-                    image_path text NOT NULL
-                 );"""
-    create_table(conn, cmd_str)
+                    image_path text NOT NULL);"""
+    execute_query(conn, cmd_str)
 
 
 def dump_tables(conn):
-    import pdb;pdb.set_trace()
     c = conn.cursor()
     cmd_str = "SELECT name FROM sqlite_master WHERE type='table';"
     c.execute(cmd_str)
     result = c.fetchall()
     c.close()
+    return [x[0] for x in result]
 
 
 def load_list(list_file: str):
     # Load requests from file
+    import pdb;pdb.set_trace()
     card_list = open(list_file, "r").readlines()
-    # TODO split the string into proper list
+    card_list = [x.strip("\n") for x in card_list]
     conn = create_conn(db_filename)
 
-    f "cards" not in dump_tables(conn:
-        init_table(db_filename)
+    if "cards" not in dump_tables(conn):
+        init_table(conn)
         remaining_cards = card_list
     else: 
         # Load cached data
-        pass
+        c = conn.cursor()
+        cmd_str = "SELECT card_name FROM cards;"
+        c.execute(cmd_str)
+        cached_cards = [x[0] for x in c.fetchall()]
+        import pdb;pdb.set_trace()
+        c.close()
     
     download_cards(remaining_cards)
     conn.close()
