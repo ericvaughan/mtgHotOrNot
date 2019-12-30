@@ -1,12 +1,14 @@
+from typing import List
 import scrython
 import sqlite3
 import os
+import wget
 
 
 db_filename = "cards.db"
 
 
-def create_conn(db_file):
+def create_conn(db_file: str):
     conn = None
     try:
         conn = sqlite3.connect(db_file)
@@ -17,7 +19,7 @@ def create_conn(db_file):
     return conn
 
 
-def execute_query(conn, sql_cmd: str):
+def execute_query(conn, sql_cmd: str) -> None:
     try:
         c = conn.cursor()
         c.execute(sql_cmd)
@@ -25,12 +27,18 @@ def execute_query(conn, sql_cmd: str):
         print(e)
 
 
-def download_card_image(card_name: str):
-    card = scrython.cards.Named(fuzzy=card_name)
+def download_card_image(card, dest_folder: str) -> str:
+    image_url = card.image_uris()["png"]  # TODO configure
+    file_name = "{}.png".format(card.name())  # TODO sanitize card names
+    dest_path = os.path.join(dest_folder, file_name)
+    wget.download(image_url, dest_path)
+    return dest_path
+
+def download_card_data(card_name: str):
+    return scrython.cards.Named(fuzzy=card_name)
 
 
-def init_table(conn):
-    import pdb;pdb.set_trace()
+def init_table(conn) -> None:
     cmd_str = """CREATE TABLE IF NOT EXISTS cards (
                     id integer PRIMARY KEY,
                     card_name text NOT NULL,
@@ -39,7 +47,7 @@ def init_table(conn):
     execute_query(conn, cmd_str)
 
 
-def dump_tables(conn):
+def dump_tables(conn) -> List[str]:
     c = conn.cursor()
     cmd_str = "SELECT name FROM sqlite_master WHERE type='table';"
     c.execute(cmd_str)
@@ -48,9 +56,26 @@ def dump_tables(conn):
     return [x[0] for x in result]
 
 
-def load_list(list_file: str):
+def add_card(conn, card_name: str, card_text: str, image_path: str) -> None:
+    c = conn.cursor()
+    cmd_str = """INSERT INTO cards (card_name, card_text, image_path)
+                 VALUES("{}", "{}", "{}");""".format(card_name, card_text, image_path)
+    c.execute(cmd_str)
+    c.close()
+    conn.commit()
+
+
+def download_cards(conn, dl_list: List[str], image_dir: str) -> None:
+    # For each uncached entry, download card text and image 
+    for card_name in dl_list:
+        card = download_card_data(card_name)
+        # Download image. Would eventually want to batch process this - TODO
+        im_path = download_card_image(card, image_dir)
+        add_card(conn, card.name(), card.oracle_text(), im_path)
+
+
+def load_list(list_file: str, imgs_path: str) -> None:
     # Load requests from file
-    import pdb;pdb.set_trace()
     card_list = open(list_file, "r").readlines()
     card_list = [x.strip("\n") for x in card_list]
     conn = create_conn(db_filename)
@@ -64,15 +89,12 @@ def load_list(list_file: str):
         cmd_str = "SELECT card_name FROM cards;"
         c.execute(cmd_str)
         cached_cards = [x[0] for x in c.fetchall()]
-        import pdb;pdb.set_trace()
+        remaining_cards = list(set(card_list) - set(cached_cards))
         c.close()
     
-    download_cards(remaining_cards)
+    download_cards(conn, remaining_cards, imgs_path)
     conn.close()
 
-    # For each uncached entry, download card text and image 
-    #if !get_card_record:
-        
 
 def get_card_record(card_name: str):
     # Return Scrython record if exists, else return None
@@ -80,4 +102,5 @@ def get_card_record(card_name: str):
 
 
 if __name__ == "__main__":
-    load_list("card_list.txt")
+    imgs_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
+    load_list("card_list.txt", imgs_path)
