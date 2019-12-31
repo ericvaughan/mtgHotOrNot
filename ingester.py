@@ -3,6 +3,7 @@ import scrython
 import sqlite3
 import os
 import wget
+import re
 
 
 db_filename = "cards.db"
@@ -29,9 +30,12 @@ def execute_query(conn, sql_cmd: str) -> None:
 
 def download_card_image(card, dest_folder: str) -> str:
     image_url = card.image_uris()["png"]  # TODO configure
-    file_name = "{}.png".format(card.name())  # TODO sanitize card names
+    pattern = re.compile('\W')
+    name_str = re.sub(pattern, '', card.name())
+    file_name = "{}.png".format(name_str)
     dest_path = os.path.join(dest_folder, file_name)
-    wget.download(image_url, dest_path)
+    if not os.path.isfile(dest_path):
+        wget.download(image_url, dest_path)
     return dest_path
 
 def download_card_data(card_name: str):
