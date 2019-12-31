@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 import scrython
 import sqlite3
 import os
@@ -78,7 +78,7 @@ def download_cards(conn, dl_list: List[str], image_dir: str) -> None:
         add_card(conn, card.name(), card.oracle_text(), im_path)
 
 
-def load_list(list_file: str, imgs_path: str) -> None:
+def load_list(cfg: Dict[str, str], list_file: str) -> None:
     # Load requests from file
     card_list = open(list_file, "r").readlines()
     card_list = [x.strip("\n") for x in card_list]
@@ -96,7 +96,7 @@ def load_list(list_file: str, imgs_path: str) -> None:
         remaining_cards = list(set(card_list) - set(cached_cards))
         c.close()
     
-    download_cards(conn, remaining_cards, imgs_path)
+    download_cards(conn, remaining_cards, cfg["images_dir"])
     conn.close()
 
 
