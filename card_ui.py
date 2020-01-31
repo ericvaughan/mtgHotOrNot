@@ -1,13 +1,58 @@
 import tkinter
 from PIL import Image, ImageTk
-root=tkinter.Tk()
-image_o = Image.open("images/BlackLotus.png").resize((189, 264), Image.ANTIALIAS)
-card_img1 = ImageTk.PhotoImage(image_o)
+from typing import List
 
-image_o = Image.open("images/GoblinChainwhirler.png").resize((189, 264), Image.ANTIALIAS)
-card_img2 = ImageTk.PhotoImage(image_o)
-b1=tkinter.Button(root, image=card_img1)
-b1.pack()
-b2=tkinter.Button(root, image=card_img2)
-b2.pack()
-root.mainloop()
+def card_select_window(cards: List[str]) -> int:
+    root=tkinter.Tk()
+    image_o = Image.open("images/BlackLotus.png").resize((189, 264), Image.ANTIALIAS)
+    card_img1 = ImageTk.PhotoImage(image_o)
+    
+    image_o = Image.open("images/GoblinChainwhirler.png").resize((189, 264), Image.ANTIALIAS)
+    card_img2 = ImageTk.PhotoImage(image_o)
+    b1=tkinter.Button(root, image=card_img1)
+    b1.pack()
+    b2=tkinter.Button(root, image=card_img2)
+    b2.pack()
+    root.mainloop()
+
+class CardSelect:
+
+    def __init__(self, cards: List[str]):
+        self.frame = tkinter.Frame()
+        self.frame.grid()
+        self.button_list = []
+        self.root = tkinter.Tk()
+        # Button should return identity upon being pressed. To indicate which card was selected
+        i = 0
+        for card in cards:
+            image_o = Image.open(card).resize((189, 264), Image.ANTIALIAS)
+            b1=tkinter.Button(
+                self.root,
+                 image=ImageTk.PhotoImage(master = self.root, image=image_o),
+                 command = lambda i=i: buttonClick(i)
+            )
+            self.button_list.append(b1)
+            b1.grid()
+            i = i + 1
+
+    def buttonClick(self, btn_id: int):
+        """ handle button click event and output text from entry area"""
+        import pdb;pdb.set_trace()
+        pass
+    
+    def begin(self):
+        self.frame.mainloop()
+
+
+if __name__ == "__main__":
+    cards = ["images/BlackLotus.png", "images/GoblinChainwhirler.png"]
+    if True:
+        guiFrame = CardSelect(cards)
+        guiFrame.begin()
+    else:
+        card_select_window(cards)
+
+
+#if __name__ == "__main__":
+#    choice = card_select_window(cards)
+#    print(choice)
