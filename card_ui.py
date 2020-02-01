@@ -18,23 +18,25 @@ def card_select_window(cards: List[str]) -> int:
 class CardSelect:
 
     def __init__(self, cards: List[str]):
-        self.frame = tkinter.Frame()
-        self.frame.grid()
+        self.frame = tkinter.Tk()
+        #self.frame.grid()
         self.button_list = []
-        self.root = tkinter.Tk()
+        self.card_imgs = []
         # Button should return identity upon being pressed. To indicate which card was selected
         i = 0
         for card in cards:
             image_o = Image.open(card).resize((189, 264), Image.ANTIALIAS)
-            b1=tkinter.Button(
-                self.root,
-                 image=ImageTk.PhotoImage(master = self.root, image=image_o),
-                 command = lambda i=i: buttonClick(i)
+            self.card_imgs.append(ImageTk.PhotoImage(image_o))
+            self.button_list.append(
+                tkinter.Button(
+                    master=self.frame,
+                    image=self.card_imgs[i],
+                    command = lambda i=i: self.buttonClick(i),
+                )
             )
-            self.button_list.append(b1)
-            b1.grid()
-            i = i + 1
-
+            self.button_list[-1].pack()
+            i = i+1
+    
     def buttonClick(self, btn_id: int):
         """ handle button click event and output text from entry area"""
         import pdb;pdb.set_trace()
@@ -49,10 +51,3 @@ if __name__ == "__main__":
     if True:
         guiFrame = CardSelect(cards)
         guiFrame.begin()
-    else:
-        card_select_window(cards)
-
-
-#if __name__ == "__main__":
-#    choice = card_select_window(cards)
-#    print(choice)
