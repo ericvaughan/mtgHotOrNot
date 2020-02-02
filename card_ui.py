@@ -2,18 +2,6 @@ import tkinter
 from PIL import Image, ImageTk
 from typing import List
 
-def card_select_window(cards: List[str]) -> int:
-    root=tkinter.Tk()
-    image_o = Image.open("images/BlackLotus.png").resize((189, 264), Image.ANTIALIAS)
-    card_img1 = ImageTk.PhotoImage(image_o)
-    
-    image_o = Image.open("images/GoblinChainwhirler.png").resize((189, 264), Image.ANTIALIAS)
-    card_img2 = ImageTk.PhotoImage(image_o)
-    b1=tkinter.Button(root, image=card_img1)
-    b1.pack()
-    b2=tkinter.Button(root, image=card_img2)
-    b2.pack()
-    root.mainloop()
 
 class CardSelect:
 
@@ -34,15 +22,15 @@ class CardSelect:
                     command = lambda i=i: self.buttonClick(i),
                 )
             )
-            self.button_list[-1].pack()
-            i = i+1
+            # For pack of 15 cards, 3 rows of 5
+            self.button_list[-1].grid(column=int(i % 5), row = int(i / 5))
+            i = i + 1
     
     def buttonClick(self, btn_id: int):
-        """ handle button click event and output text from entry area"""
-        import pdb;pdb.set_trace()
+        # Register vote, update associations and store to DB
         pass
     
-    def begin(self):
+    def start(self):
         self.frame.mainloop()
 
 
@@ -50,4 +38,4 @@ if __name__ == "__main__":
     cards = ["images/BlackLotus.png", "images/GoblinChainwhirler.png"]
     if True:
         guiFrame = CardSelect(cards)
-        guiFrame.begin()
+        guiFrame.start()
